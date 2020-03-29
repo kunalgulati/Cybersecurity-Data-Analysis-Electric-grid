@@ -54,6 +54,8 @@ test_evening <- aggregate(list(Global_active_power = test_evening$Global_active_
 model_morning_0 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
                           nstates = 4, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
 fm_morning_0 <- fit(model_morning_0)
+
+normalize_training_loglike <- logLik(fm_morning_0) / nrow(training_morning)
 print(fm_morning_0)
 
 model_morning_1 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
@@ -138,7 +140,7 @@ model_match_morning <- getpars(model_morning_0) #best model with states = 4
 model_match_morning <- model_match_morning[1:1164]  #Match the new_model_morning size
 test_model_morning <- setpars(test_model_morning, model_match_morning)
 
-logLik(test_model_morning)
+normalize_test_morning_loglike <- logLik(test_model_morning) / nrow(test_morning)
 BIC(test_model_morning)
 
 # ======= Train EVENING for TEST DATA ======= #
@@ -151,7 +153,6 @@ test_model_evening <- setpars(test_model_evening, model_match_evening)
 
 logLik(test_model_evening)
 BIC(test_model_evening)
-
 
 # ********* UNIVARIENT ========================================================= #
 
@@ -185,8 +186,6 @@ model_morning_univarient_1 <- depmix(list(Global_active_power ~ 1), data = train
                           nstates = 6, family=list(gaussian()), ntimes = nrow(training_morning_univarient))
 fm_morning_univarient_1 <- fit(model_morning_univarient_1)
 print(fm_morning_univarient_1)
-
-
 
 # TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO   TODO  TODO  
 model_morning_2 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
