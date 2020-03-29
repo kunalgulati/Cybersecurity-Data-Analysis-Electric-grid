@@ -5,6 +5,21 @@ library("corrplot")
 library("gridExtra")
 library("fpp2")
 
+# Returns object 
+# Object[1] = Model
+# Object[2] = fm
+# Object[3] = normalize_loglikehood
+Hmm_model <- function(data, parm_variable, param_family, number_of_states) {
+  model <- depmix(parm_variable, data = data,
+                            nstates = number_of_states, family=param_family, ntimes = nrow(data))
+  fm <- fit(model)
+  normalize_loglikehood <- logLik(fm) / nrow(data)
+  result <- list(model, fm, normalize_loglikehood  )
+  return(result)
+}
+
+
+
 # Determine features for multivariate HMM analysis
 # SUBPART 1 : Select Global Active Power (main feature) and Global Intensity as features - split train and test data
 data <- read.csv(file="TrainData.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
@@ -49,210 +64,73 @@ test_evening <- aggregate(list(Global_active_power = test_evening$Global_active_
 
 # ========================================================= Created HMM Model for TRAINING Data set ========================================================= #
 
-# ==================================== ======= Train Morning Training ==================================== ======= #
+# Training Morning Model
+model_morning_0 <- Hmm_model(training_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                             list(gaussian(), multinomial("identity")), 4) 
 
-model_morning_0 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 4, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_0 <- fit(model_morning_0)
+model_morning_1 <- Hmm_model(training_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                          list(gaussian(), multinomial("identity")), 6)
 
-normalize_training_loglike <- logLik(fm_morning_0) / nrow(training_morning)
-print(fm_morning_0)
+model_morning_2 <- Hmm_model(training_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                          list(gaussian(), multinomial("identity")), 8)
 
-model_morning_1 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 6, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_1 <- fit(model_morning_1)
-print(fm_morning_1)
+model_morning_3 <- Hmm_model(training_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                          list(gaussian(), multinomial("identity")), 10)
 
-model_morning_2 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 8, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_2 <- fit(model_morning_2)
-print(fm_morning_1)
+model_morning_4 <- Hmm_model(training_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                          list(gaussian(), multinomial("identity")), 12)
 
-model_morning_3 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 10, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_3 <- fit(model_morning_3)
-print(fm_morning_3)
+model_morning_5 <- Hmm_model(training_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                          list(gaussian(), multinomial("identity")), 14)
 
-model_morning_4 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 12, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_4 <- fit(model_morning_4)
-print(fm_morning_4)
+model_morning_6 <- Hmm_model(training_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                          list(gaussian(), multinomial("identity")), 16)
 
-model_morning_5 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 14, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_5 <- fit(model_morning_5)
-print(fm_morning_5)
+# Plot the BIC vs Number of states graph, 
+# to find the best model
+plot(c(4,6,8,10,12,14,16),c(BIC(model_morning_0[[2]]),BIC(model_morning_1[[2]]),BIC(model_morning_2[[2]]),
+                            BIC(model_morning_3[[2]]), BIC(model_morning_4[[2]]), BIC(model_morning_5[[2]]), BIC(model_morning_6[[2]])),ty="b")
 
-model_morning_6 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 16, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_6 <- fit(model_morning_6)
-print(fm_morning_6)
 
-plot(c(4,6,8,10,12,14,16),c(BIC(fm_morning_0),BIC(fm_morning_1),BIC(fm_morning_2),BIC(fm_morning_3), BIC(fm_morning_4), BIC(fm_morning_5), BIC(fm_morning_6)),ty="b")
+# Train Evening for Training data
+model_evening_0 <- Hmm_model(training_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                             list(gaussian(), multinomial("identity")), 4)
 
-# ==================================== ======= Train Evening for Training data ==================================== ======= #
-# State = 4, is the best
-model_evening_0 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 4, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_0 <- fit(model_evening_0)
-print(fm_evening_0)
+model_evening_1 <- Hmm_model(training_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                             list(gaussian(), multinomial("identity")), 6)
 
-model_evening_1 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 6, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_1 <- fit(model_evening_1)
-print(fm_evening_1)
+model_evening_2 <- Hmm_model(training_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                             list(gaussian(), multinomial("identity")), 8)
 
-model_evening_2 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 8, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_2 <- fit(model_evening_2)
-print(fm_evening_2)
+model_evening_3 <- Hmm_model(training_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                            list(gaussian(), multinomial("identity")), 10)
 
-model_evening_3 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 10, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_3 <- fit(model_evening_3)
-print(fm_evening_3)
+model_evening_4 <- Hmm_model(training_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                             list(gaussian(), multinomial("identity")), 12)
 
-model_evening_4 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 12, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_4 <- fit(model_evening_4)
-print(fm_evening_4)
+model_evening_5 <- Hmm_model(training_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                             list(gaussian(), multinomial("identity")), 14)
 
-model_evening_5 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 14, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_5 <- fit(model_evening_5)
-print(fm_evening_5)
+model_evening_6 <- Hmm_model(training_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                             list(gaussian(), multinomial("identity")), 16)
 
-model_evening_6 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 16, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_6 <- fit(model_evening_6)
-print(fm_evening_6)
-
-plot(c(4,6,8,10,12,14,16) ,c(BIC(fm_evening_0),BIC(fm_evening_1),BIC(fm_evening_2),BIC(fm_evening_3), BIC(fm_evening_4), BIC(fm_evening_5), BIC(fm_evening_6)),ty="b")
-
+# Plot the BIC vs Number of states graph, 
+# to find the best model
+plot(c(4,6,8,10,12,14,16),c(BIC(model_evening_0[[2]]),BIC(model_evening_1[[2]]),BIC(model_evening_2[[2]]),
+                            BIC(model_evening_3[[2]]), BIC(model_evening_4[[2]]), BIC(model_evening_5[[2]]), BIC(model_evening_6[[2]])),ty="b")
 
 # ========================================================= Created HMM Model for TEST Data set ========================================================= #
 
-# ======= Train MORNING for TEST DATA ======= #
+test_model_morning <- Hmm_model(test_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                list(gaussian(), multinomial("identity")), 4)
 
-test_model_morning <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = test_morning,
-                             nstates = 4, family=list(gaussian(), multinomial("identity")), ntimes = nrow(test_morning))
-model_match_morning <- getpars(model_morning_0) #best model with states = 4
+model_match_morning <- getpars(model_morning_0[[1]]) # best model with states = 4
 model_match_morning <- model_match_morning[1:1164]  #Match the new_model_morning size
-test_model_morning <- setpars(test_model_morning, model_match_morning)
+# SetPars 
+test_morning_setpars <- setpars(test_model_morning[[1]], model_match_morning)
+normalize_test_morning_loglike <- logLik(test_morning_setpars) / nrow(test_morning)
+BIC(test_morning_setpars)
 
-normalize_test_morning_loglike <- logLik(test_model_morning) / nrow(test_morning)
-BIC(test_model_morning)
-
-# ======= Train EVENING for TEST DATA ======= #
-
-test_model_evening <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = test_evening,
-                             nstates = 4, family=list(gaussian(), multinomial("identity")), ntimes = nrow(test_evening))
-model_match_evening <- getpars(model_evening_0) #best model with states = 4
-model_match_evening <- model_match_evening[1:1164]  #Match the new_model_morning size
-test_model_evening <- setpars(test_model_evening, model_match_evening)
-
-logLik(test_model_evening)
-BIC(test_model_evening)
-
-# ********* UNIVARIENT ========================================================= #
-
-# ========================================================= Created TRAINING Data set ========================================================= #
-# Filtering data by Morning and Evening
-training_morning_univarient <- subset(filter_morning, filter_morning$Year != 2009)
-training_evening_univarient <- subset(filter_evening, filter_evening$Year != 2009)
-# Aggregate the data for Morning and Evening
-training_morning_univarient <- aggregate(list(Global_active_power = training_morning_univarient$Global_active_power), by=list(Week = training_morning_univarient$Week, Day = training_morning_univarient$Day), mean)
-training_evening_univarient <- aggregate(list(Global_active_power = training_evening_univarient$Global_active_power), by=list(Week = training_evening_univarient$Week, Day = training_evening_univarient$Day), mean)
-
-# ========================================================= Created TEST Data set ========================================================= #
-# Filtering data by morning and evening
-test_morning_univarient <- subset(filter_morning, filter_morning$Year == 2009)
-test_evening_univarient <- subset(filter_evening, filter_evening$Year == 2009)
-# Aggregate the data
-test_morning_univarient <- aggregate(list(Global_active_power = test_morning_univarient$Global_active_power, Global_intensity = test_morning_univarient$Global_intensity), by=list(Week = test_morning_univarient$Week, Day = test_morning_univarient$Day), mean)
-test_evening_univarient <- aggregate(list(Global_active_power = test_evening_univarient$Global_active_power, Global_intensity = test_evening_univarient$Global_intensity), by=list(Week = test_evening_univarient$Week, Day = test_evening_univarient$Day), mean)
-
-
-# ========================================================= Created HMM Model for TRAINING Data set ========================================================= #
-
-# ==================================== ======= Train Morning Training ==================================== ======= #
-
-model_morning_univarient_0 <- depmix(list(Global_active_power ~ 1), data = training_morning_univarient,
-                          nstates = 4, family=list(gaussian()), ntimes = nrow(training_morning_univarient))
-fm_morning_univarient_0 <- fit(model_morning_univarient_0)
-print(fm_morning_univarient_0)
-
-model_morning_univarient_1 <- depmix(list(Global_active_power ~ 1), data = training_morning_univarient,
-                          nstates = 6, family=list(gaussian()), ntimes = nrow(training_morning_univarient))
-fm_morning_univarient_1 <- fit(model_morning_univarient_1)
-print(fm_morning_univarient_1)
-
-# TODO TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO  TODO   TODO  TODO  
-model_morning_2 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 8, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_2 <- fit(model_morning_2)
-print(fm_morning_1)
-
-model_morning_3 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 10, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_3 <- fit(model_morning_3)
-print(fm_morning_3)
-
-model_morning_4 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 12, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_4 <- fit(model_morning_4)
-print(fm_morning_4)
-
-model_morning_5 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 14, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_5 <- fit(model_morning_5)
-print(fm_morning_5)
-
-model_morning_6 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_morning,
-                          nstates = 16, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_morning))
-fm_morning_6 <- fit(model_morning_6)
-print(fm_morning_6)
-
-plot(c(4,6,8,10,12,14,16),c(BIC(fm_morning_0),BIC(fm_morning_1),BIC(fm_morning_2),BIC(fm_morning_3), BIC(fm_morning_4), BIC(fm_morning_5), BIC(fm_morning_6)),ty="b")
-
-# ==================================== ======= Train Evening for Training data ==================================== ======= #
-# State = 4, is the best
-model_evening_0 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 4, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_0 <- fit(model_evening_0)
-print(fm_evening_0)
-
-model_evening_1 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 6, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_1 <- fit(model_evening_1)
-print(fm_evening_1)
-
-model_evening_2 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 8, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_2 <- fit(model_evening_2)
-print(fm_evening_2)
-
-model_evening_3 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 10, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_3 <- fit(model_evening_3)
-print(fm_evening_3)
-
-model_evening_4 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 12, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_4 <- fit(model_evening_4)
-print(fm_evening_4)
-
-model_evening_5 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 14, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_5 <- fit(model_evening_5)
-print(fm_evening_5)
-
-model_evening_6 <- depmix(list(Global_active_power ~ 1, Global_intensity ~ 1), data = training_evening,
-                          nstates = 16, family=list(gaussian(), multinomial("identity")), ntimes = nrow(training_evening))
-fm_evening_6 <- fit(model_evening_6)
-print(fm_evening_6)
-
-plot(c(4,6,8,10,12,14,16) ,c(BIC(fm_evening_0),BIC(fm_evening_1),BIC(fm_evening_2),BIC(fm_evening_3), BIC(fm_evening_4), BIC(fm_evening_5), BIC(fm_evening_6)),ty="b")
 
 
 
