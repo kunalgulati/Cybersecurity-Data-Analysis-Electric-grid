@@ -15,30 +15,44 @@ data$Week <- strftime(dateTime, format = "%V")
 filter_morning <- subset(data, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
 filter_evening <- subset(data, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
 
+# find min and max
 max_morning_training_GA<-max(filter_morning$Global_active_power)
 min_morning_training_GA<-min(filter_morning$Global_active_power)
 max_morning_training_GI<-max(filter_morning$Global_intensity)
 min_morning_training_GI<-min(filter_morning$Global_intensity)
+max_evening_training_GA<-max(filter_evening$Global_active_power)
+min_evening_training_GA<-min(filter_evening$Global_active_power)
+max_evening_training_GI<-max(filter_evening$Global_intensity)
+min_evening_training_GI<-min(filter_evening$Global_intensity)
 
-max_evening_training_GA<-max(filter_morning$Global_active_power)
-min_evening_training_GA<-min(filter_morning$Global_active_power)
-max_evening_training_GI<-max(filter_morning$Global_intensity)
-min_evening_training_GI<-min(filter_morning$Global_intensity)
+# try with no time frame restriction 
+# max_morning_training_GA<-max(data$Global_active_power)
+# min_morning_training_GA<-min(data$Global_active_power)
+# max_morning_training_GI<-max(data$Global_intensity)
+# min_morning_training_GI<-min(data$Global_intensity)
+# 
+# max_evening_training_GA<-max(data$Global_active_power)
+# min_evening_training_GA<-min(data$Global_active_power)
+# max_evening_training_GI<-max(data$Global_intensity)
+# min_evening_training_GI<-min(data$Global_intensity)
 
 # ------------------------------------------------------- point anomaly detection by range for t1 -------------------------------------------------------------------------------------------------------------------
 test1 <- read.csv(file="test1.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
 test1 <- na.omit(data)
-test1$Year <- as.numeric(format(as.Date(test1$Date, "%d/%m/%Y"), "%Y"))
-test1$Day <- as.POSIXlt(test1$Date)$wday
-x_test1 <- paste(test1$Date, test1$Time)
-dateTime_test1 <- as.POSIXlt(x_test1, format = "%d/%m/%Y %H:%M:%S")
-test1$DateTime<-dateTime_test1
-test1$Week <- strftime(dateTime_test1, format = "%V")
-test1_filter_morning <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
-test1_filter_evening <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+# test1$Year <- as.numeric(format(as.Date(test1$Date, "%d/%m/%Y"), "%Y"))
+# test1$Day <- as.POSIXlt(test1$Date)$wday
+# x_test1 <- paste(test1$Date, test1$Time)
+# dateTime_test1 <- as.POSIXlt(x_test1, format = "%d/%m/%Y %H:%M:%S")
+# test1$DateTime<-dateTime_test1
+# test1$Week <- strftime(dateTime_test1, format = "%V")
+# test1_filter_morning <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+# test1_filter_evening <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+# test1_GA_outliers<-subset(test1_filter_morning, ((test1_filter_morning$Global_active_power>max_morning_training_GA)||(test1$Global_active_power<min_morning_training_GA)||(test1_filter_evening$Global_active_power>max_evening_training_GA)||(test1_filter_evening$Global_active_power<min_evening_training_GA)))
+# test1_GI_outliers<-subset(test1_filter_morning, ((test1_filter_morning$Global_intensity>max_morning_training_GI)||(test1$Global_intensity<min_morning_training_GI)||(test1_filter_evening$Global_intensity>max_evening_training_GI)||(test1_filter_evening$Global_intensity<min_evening_training_GI)))
 
-test1_GA_outliers<-subset(test1_filter_morning, ((test1_filter_morning$Global_active_power>max_morning_training_GA)||(test1$Global_active_power<min_morning_training_GA)||(test1_filter_evening$Global_active_power>max_evening_training_GA)||(test1_filter_evening$Global_active_power<min_evening_training_GA)))
-test1_GI_outliers<-subset(test1_filter_morning, ((test1_filter_morning$Global_intensity>max_morning_training_GI)||(test1$Global_intensity<min_morning_training_GI)||(test1_filter_evening$Global_intensity>max_evening_training_GI)||(test1_filter_evening$Global_intensity<min_evening_training_GI)))
+# Try no time frame restriction
+test1_GA_outliers<-subset(test1, ((test1$Global_active_power>max_morning_training_GA)|(test1$Global_active_power<min_morning_training_GA)|(test1$Global_active_power>max_evening_training_GA)|(test1$Global_active_power<min_evening_training_GA)))
+test1_GI_outliers<-subset(test1, ((test1$Global_intensity>max_morning_training_GI)|(test1$Global_intensity<min_morning_training_GI)|(test1$Global_intensity>max_evening_training_GI)|(test1$Global_intensity<min_evening_training_GI)))
 
 
 # ------------------------------------------------------- point anomaly detection by range for t2 -------------------------------------------------------------------------------------------------------------------
