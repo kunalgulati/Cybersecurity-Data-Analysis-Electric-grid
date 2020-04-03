@@ -51,9 +51,10 @@ test1 <- na.omit(data)
 # test1_GI_outliers<-subset(test1_filter_morning, ((test1_filter_morning$Global_intensity>max_morning_training_GI)||(test1$Global_intensity<min_morning_training_GI)||(test1_filter_evening$Global_intensity>max_evening_training_GI)||(test1_filter_evening$Global_intensity<min_evening_training_GI)))
 
 # Try no time frame restriction
-test1_GA_outliers<-subset(test1, ((test1$Global_active_power>max_morning_training_GA)|(test1$Global_active_power<min_morning_training_GA)|(test1$Global_active_power>max_evening_training_GA)|(test1$Global_active_power<min_evening_training_GA)))
-test1_GI_outliers<-subset(test1, ((test1$Global_intensity>max_morning_training_GI)|(test1$Global_intensity<min_morning_training_GI)|(test1$Global_intensity>max_evening_training_GI)|(test1$Global_intensity<min_evening_training_GI)))
-
+test1_GA_outliers_morning<-subset(test1, ((test1$Global_active_power>max_morning_training_GA)|(test1$Global_active_power<min_morning_training_GA)))
+test1_GA_outliers_evening<-subset(test1, ((test1$Global_active_power>max_evening_training_GA)|(test1$Global_active_power<min_evening_training_GA)))
+test1_GI_outliers_mornig<-subset(test1, ((test1$Global_intensity>max_morning_training_GI)|(test1$Global_intensity<min_morning_training_GI)))
+test1_GI_outliers_evening<-subset(test1, ((test1$Global_intensity>max_evening_training_GI)|(test1$Global_intensity<min_evening_training_GI)))
 
 # ------------------------------------------------------- point anomaly detection by range for t2 -------------------------------------------------------------------------------------------------------------------
 test2 <- read.csv(file="test2.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
