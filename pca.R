@@ -14,9 +14,9 @@ data$Week <- strftime(dateTime, format = "%V")
 data$Year <- as.numeric(format(as.Date(data$Date, "%d/%m/%Y"), "%Y"))
 
 # filter for day and timeframe
-filter_monday <- subset(data, Day == 04)
-morning <- subset(filter_monday, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
-evening <- subset(filter_monday, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+filter_day <- subset(data, Day == 06)
+morning <- subset(filter_day, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+evening <- subset(filter_day, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
 
 agg_morning <- aggregate(list(
   GAP = morning$Global_active_power, 
