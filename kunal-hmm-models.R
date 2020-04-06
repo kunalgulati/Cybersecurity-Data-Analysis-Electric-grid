@@ -18,13 +18,51 @@ Hmm_model <- function(data, parm_variable, param_family, number_of_states) {
   return(result)
 }
 
+Add_date <- function(data){
+  data$Year <- as.numeric(format(as.Date(test1$Date, "%d/%m/%Y"), "%Y"))
+  data$Day <- as.POSIXlt(data$Date)$wday
+  x <- paste(data$Date, data$Time)
+  dateTime <- as.POSIXlt(x, format = "%d/%m/%Y %H:%M:%S")
+  
+  # Derive week and filter for week 7
+  data$Week <- strftime(dateTime, format = "%V")
+  return(data)
+}
+
+Model_comparison <- function(training_model, test_model, numberOfRow){
+  match_model <- getpars(training_model) 
+  test_model_length <- length(getpars(test_model))
+  #Match the new_model_morning size
+  match_model <- match_model[1:test_model_length]  
+  # Compare the test vs training model
+  test <- setpars(test_model, match_model)
+  # Calculate Normalize Log-likelihood and BIC for test
+  normalize_test_loglike <- logLik(test) / numberOfRow
+  bic <- BIC(test) 
+  # Create a return Object
+  result <- list(normalize_test_loglike, bic)
+  return(result)
+}
 
 
 # Determine features for multivariate HMM analysis
 # SUBPART 1 : Select Global Active Power (main feature) and Global Intensity as features - split train and test data
 data <- read.csv(file="TrainData.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
 
+# Test Data
+test1 <- read.csv(file="test1.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
+test2 <- read.csv(file="test2.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
+test3 <- read.csv(file="test3.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
+test4 <- read.csv(file="test4.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
+test5 <- read.csv(file="test5.txt", header=TRUE, sep=",", na.strings = c("", "NA"))
+
 data <- na.omit(data)
+test1 <- na.omit(test1)
+test2 <- na.omit(test2)
+test3 <- na.omit(test3)
+test4 <- na.omit(test4)
+test5 <- na.omit(test5)
+
 # row_id <- rownames(data)
 # data <- cbind(id=row_id,data)
 
@@ -36,6 +74,12 @@ dateTime <- as.POSIXlt(x, format = "%d/%m/%Y %H:%M:%S")
 
 # Derive week and filter for week 7
 data$Week <- strftime(dateTime, format = "%V")
+
+test1 <- Add_date(test1)
+test2 <- Add_date(test2)
+test3 <- Add_date(test3)
+test4 <- Add_date(test4)
+test5 <- Add_date(test5)
 
 
 # Filter timeframe 1 and shrink data further (i.e. choose specific day, can also aggregate data)
@@ -60,6 +104,55 @@ test_evening <- subset(filter_evening, filter_evening$Year == 2009)
 # Aggregate the data
 test_morning <- aggregate(list(Global_active_power = test_morning$Global_active_power, Global_intensity = test_morning$Global_intensity), by=list(Week = test_morning$Week, Day = test_morning$Day), mean)
 test_evening <- aggregate(list(Global_active_power = test_evening$Global_active_power, Global_intensity = test_evening$Global_intensity), by=list(Week = test_evening$Week, Day = test_evening$Day), mean)
+
+# ========================================================= Five TEST Sets ========================================================= #
+# Filter the five given test data sets
+# Filtering by morning and evening
+# TEST SET #1
+test1_morning <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test1_evening <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+# TEST SET #2
+test2_morning <- subset(test2, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test2_evening <- subset(test2, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+# TEST SET #2
+test3_morning <- subset(test3, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test3_evening <- subset(test3, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+# TEST SET #2
+test4_morning <- subset(test4, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test4_evening <- subset(test4, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+# TEST SET #2
+test5_morning <- subset(test5, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test5_evening <- subset(test5, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+
+# Aggregate the data
+# TEST SET #1
+
+test1_morning <- aggregate(list(Global_active_power = test1_morning$Global_active_power, 
+                                Global_intensity = test1_morning$Global_intensity), by=list(Week = test1_morning$Week, Day = test1_morning$Day), mean)
+test1_evening <- aggregate(list(Global_active_power = test1_evening$Global_active_power, 
+                                Global_intensity = test1_evening$Global_intensity), by=list(Week = test1_evening$Week, Day = test1_evening$Day), mean)
+
+# TEST SET #2
+test2_morning <- aggregate(list(Global_active_power = test2_morning$Global_active_power, 
+                                Global_intensity = test2_morning$Global_intensity), by=list(Week = test2_morning$Week, Day = test2_morning$Day), mean)
+test2_evening <- aggregate(list(Global_active_power = test2_evening$Global_active_power, 
+                                Global_intensity = test2_evening$Global_intensity), by=list(Week = test2_evening$Week, Day = test2_evening$Day), mean)
+# TEST SET #3
+test3_morning <- aggregate(list(Global_active_power = test3_morning$Global_active_power, 
+                                Global_intensity = test3_morning$Global_intensity), by=list(Week = test3_morning$Week, Day = test3_morning$Day), mean)
+test3_evening <- aggregate(list(Global_active_power = test3_evening$Global_active_power, 
+                                Global_intensity = test3_evening$Global_intensity), by=list(Week = test3_evening$Week, Day = test3_evening$Day), mean)
+# TEST SET #4
+test4_morning <- aggregate(list(Global_active_power = test4_morning$Global_active_power, 
+                                Global_intensity = test4_morning$Global_intensity), by=list(Week = test4_morning$Week, Day = test4_morning$Day), mean)
+test4_evening <- aggregate(list(Global_active_power = test4_evening$Global_active_power, 
+                                Global_intensity = test4_evening$Global_intensity), by=list(Week = test4_evening$Week, Day = test4_evening$Day), mean)
+# TEST SET #5
+test5_morning <- aggregate(list(Global_active_power = test5_morning$Global_active_power, 
+                                Global_intensity = test5_morning$Global_intensity), by=list(Week = test5_morning$Week, Day = test5_morning$Day), mean)
+test5_evening <- aggregate(list(Global_active_power = test5_evening$Global_active_power, 
+                                Global_intensity = test5_evening$Global_intensity), by=list(Week = test5_evening$Week, Day = test5_evening$Day), mean)
+
 
 
 # ========================================================= Created HMM Model for TRAINING Data set ========================================================= #
@@ -121,9 +214,9 @@ plot(c(4,6,8,10,12,14,16),c(BIC(model_evening_0[[2]]),BIC(model_evening_1[[2]]),
 
 # ========================================================= Created HMM Model for TEST Data set ========================================================= #
 
+# HMM TEST Morning
 test_model_morning <- Hmm_model(test_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
                                 list(gaussian(), multinomial("identity")), 4)
-
 model_match_morning <- getpars(model_morning_0[[1]]) # best model with states = 4
 model_match_morning <- model_match_morning[1:1164]  #Match the new_model_morning size
 # SetPars 
@@ -131,9 +224,56 @@ test_morning_setpars <- setpars(test_model_morning[[1]], model_match_morning)
 normalize_test_morning_loglike <- logLik(test_morning_setpars) / nrow(test_morning)
 BIC(test_morning_setpars)
 
+# HMM TEST Evening
+test_model_evening <- Hmm_model(test_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                list(gaussian(), multinomial("identity")), 4)
+model_match_evening <- getpars(model_evening_0[[1]]) # best model with states = 4
+model_match_evening <- model_match_evening[1:1164]  #Match the new_model_morning size
+# SetPars 
+test_evening_setpars <- setpars(test_model_evening[[1]], model_match_evening)
+normalize_test_morning_loglike <- logLik(test_evening_setpars) / nrow(test_evening)
+BIC(test_evening_setpars)
 
 
+# ========================================================= HMM models for 5 Data Sets  ========================================================= #
+
+# Train models for all test sets with states = 4
+
+# Morning
+test1_model_morning <- Hmm_model(test1_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+test2_model_morning <- Hmm_model(test2_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+test3_model_morning <- Hmm_model(test3_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+test4_model_morning <- Hmm_model(test4_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+test5_model_morning <- Hmm_model(test5_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+
+# TEST-2 Evening
+test1_model_evening <- Hmm_model(test1_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+test2_model_evening <- Hmm_model(test2_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+test3_model_evening <- Hmm_model(test3_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+test4_model_evening <- Hmm_model(test4_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
+test5_model_evening <- Hmm_model(test5_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
+                                 list(gaussian(), multinomial("identity")), 4)
 
 
-
-
+# Model Comparison 
+# Morning
+test1_morning_result <- Model_comparison(model_morning_0[[1]], test1_model_morning[[1]], nrow(test1_morning))
+test2_morning_result <- Model_comparison(model_morning_0[[1]], test2_model_morning[[1]], nrow(test2_morning))
+test3_morning_result <- Model_comparison(model_morning_0[[1]], test3_model_morning[[1]], nrow(test3_morning))
+test4_morning_result <- Model_comparison(model_morning_0[[1]], test4_model_morning[[1]], nrow(test4_morning))
+test5_morning_result <- Model_comparison(model_morning_0[[1]], test5_model_morning[[1]], nrow(test5_morning))
+# Evening
+test1_evening_result <- Model_comparison(model_evening_0[[1]], test1_model_evening[[1]], nrow(test1_evening))
+test2_evening_result <- Model_comparison(model_evening_0[[1]], test2_model_evening[[1]], nrow(test2_evening))
+test3_evening_result <- Model_comparison(model_evening_0[[1]], test3_model_evening[[1]], nrow(test3_evening))
+test4_evening_result <- Model_comparison(model_evening_0[[1]], test4_model_evening[[1]], nrow(test4_evening))
+test5_evening_result <- Model_comparison(model_evening_0[[1]], test5_model_evening[[1]], nrow(test5_evening))
