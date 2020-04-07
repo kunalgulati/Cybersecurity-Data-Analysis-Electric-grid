@@ -179,9 +179,12 @@ model_morning_5 <- Hmm_model(training_morning, Global_active_power ~ 1, 14)
 model_morning_6 <- Hmm_model(training_morning, Global_active_power ~ 1, 16)
 
 # Plot the BIC vs Number of states graph, 
-# to find the best model
-plot(c(4,6,8,10,12,14,16),c(BIC(model_morning_0[[2]]),BIC(model_morning_1[[2]]),BIC(model_morning_2[[2]]),
-                            BIC(model_morning_3[[2]]), BIC(model_morning_4[[2]]), BIC(model_morning_5[[2]]), BIC(model_morning_6[[2]])),ty="b")
+# When fitting models, it is possible to increase the likelihood by adding parameters, but doing so may result in 
+# overfitting. Both AIC and BIC attempt to resolve this problem
+# The model with lowest BIC is choosen
+plot(c(4,6,8,10,12,14,16),c(BIC(model_morning_0[[2]]),BIC(model_morning_1[[2]]),BIC(model_morning_2[[2]]),BIC(model_morning_3[[2]]), BIC(model_morning_4[[2]]), BIC(model_morning_5[[2]]), BIC(model_morning_6[[2]])),
+     ty="b", main="Number of States v/s BIC (Morning)",
+     xlab="Number of states", ylab="BIC")
 
 # Train Evening for Training data
 model_evening_0 <- Hmm_model(training_evening, Global_active_power ~ 1, 4)
@@ -199,9 +202,12 @@ model_evening_5 <- Hmm_model(training_evening, Global_active_power ~ 1, 14)
 model_evening_6 <- Hmm_model(training_evening, Global_active_power ~ 1, 16)
 
 # Plot the BIC vs Number of states graph, 
-# to find the best model
-plot(c(4,6,8,10,12,14,16),c(BIC(model_evening_0[[2]]),BIC(model_evening_1[[2]]),BIC(model_evening_2[[2]]),
-                            BIC(model_evening_3[[2]]), BIC(model_evening_4[[2]]), BIC(model_evening_5[[2]]), BIC(model_evening_6[[2]])),ty="b")
+# When fitting models, it is possible to increase the likelihood by adding parameters, but doing so may result in 
+# overfitting. Both AIC and BIC attempt to resolve this problem
+# The model with lowest BIC is choosen
+plot(c(4,6,8,10,12,14,16),c(BIC(model_evening_0[[2]]),BIC(model_evening_1[[2]]),BIC(model_evening_2[[2]]),BIC(model_evening_3[[2]]), BIC(model_evening_4[[2]]), BIC(model_evening_5[[2]]), BIC(model_evening_6[[2]])),
+     ty="b", main="Number of States v/s BIC (Evening)", 
+     xlab="Number of states", ylab="BIC")
 
 # ========================================================= Created HMM Model for TEST Data set ========================================================= #
 
@@ -245,3 +251,20 @@ test2_evening_result <- Model_comparison(model_evening_0[[1]], test2_model_eveni
 test3_evening_result <- Model_comparison(model_evening_0[[1]], test3_model_evening[[1]], nrow(test3_evening))
 test4_evening_result <- Model_comparison(model_evening_0[[1]], test4_model_evening[[1]], nrow(test4_evening))
 test5_evening_result <- Model_comparison(model_evening_0[[1]], test5_model_evening[[1]], nrow(test5_evening))
+
+
+plot( factor(c(1,2,3,4,5,6)), xaxt = "n",
+      c(test1_morning_result[[1]], test2_morning_result[[1]], test3_morning_result[[1]], test4_morning_result[[1]], test5_morning_result[[1]], test_morning_result[[1]]),
+      main="LogLikehood of Test v/s Train (Morning)", sub="Comparing Normalized Loglikehood values of Five Test datasets, vs Training Model",
+      xlab="Test cases Model", ylab="Normalized LogLikehood")
+axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Training"))
+
+
+# Evening
+plot( factor(c(1,2,3,4,5,6)), xaxt = "n",
+      c(test1_evening_result[[1]], test2_evening_result[[1]], test3_evening_result[[1]], test4_evening_result[[1]], test5_evening_result[[1]], test_evening_result[[1]]),
+      main="LogLikehood of Test v/s Train (Evening)", sub="Comparing Normalized Loglikehood values of Five Test datasets, vs Training Model",
+      xlab="Test cases Model", ylab="Normalized LogLikehood")
+axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Training"))
+
+

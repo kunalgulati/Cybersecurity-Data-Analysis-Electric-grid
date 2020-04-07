@@ -181,8 +181,8 @@ model_morning_6 <- Hmm_model(training_morning, list(Global_active_power ~ 1, Glo
 
 # Plot the BIC vs Number of states graph, 
 # to find the best model
-plot(c(4,6,8,10,12,14,16),c(BIC(model_morning_0[[2]]),BIC(model_morning_1[[2]]),BIC(model_morning_2[[2]]),
-                            BIC(model_morning_3[[2]]), BIC(model_morning_4[[2]]), BIC(model_morning_5[[2]]), BIC(model_morning_6[[2]])),ty="b")
+plot(c(4,6,8,10,12,14,16),c(BIC(model_morning_0[[2]]),BIC(model_morning_1[[2]]),BIC(model_morning_2[[2]]),BIC(model_morning_3[[2]]), BIC(model_morning_4[[2]]), BIC(model_morning_5[[2]]), BIC(model_morning_6[[2]])),
+     ty="b", main="Number of States v/s BIC (Morning)", xlab="Number of states", ylab="BIC")
 
 
 # Train Evening for Training data
@@ -209,30 +209,18 @@ model_evening_6 <- Hmm_model(training_evening, list(Global_active_power ~ 1, Glo
 
 # Plot the BIC vs Number of states graph, 
 # to find the best model
-plot(c(4,6,8,10,12,14,16),c(BIC(model_evening_0[[2]]),BIC(model_evening_1[[2]]),BIC(model_evening_2[[2]]),
-                            BIC(model_evening_3[[2]]), BIC(model_evening_4[[2]]), BIC(model_evening_5[[2]]), BIC(model_evening_6[[2]])),ty="b")
+plot(c(4,6,8,10,12,14,16),c(BIC(model_evening_0[[2]]),BIC(model_evening_1[[2]]),BIC(model_evening_2[[2]]),BIC(model_evening_3[[2]]), BIC(model_evening_4[[2]]), BIC(model_evening_5[[2]]), BIC(model_evening_6[[2]])),
+     ty="b", main="Number of States v/s BIC (Evening)",xlab="Number of states", ylab="BIC")
 
 # ========================================================= Created HMM Model for TEST Data set ========================================================= #
 
 # HMM TEST Morning
 test_model_morning <- Hmm_model(test_morning, list(Global_active_power ~ 1, Global_intensity ~ 1),
                                 list(gaussian(), multinomial("identity")), 4)
-model_match_morning <- getpars(model_morning_0[[1]]) # best model with states = 4
-model_match_morning <- model_match_morning[1:1164]  #Match the new_model_morning size
-# SetPars 
-test_morning_setpars <- setpars(test_model_morning[[1]], model_match_morning)
-normalize_test_morning_loglike <- logLik(test_morning_setpars) / nrow(test_morning)
-BIC(test_morning_setpars)
 
 # HMM TEST Evening
 test_model_evening <- Hmm_model(test_evening, list(Global_active_power ~ 1, Global_intensity ~ 1),
                                 list(gaussian(), multinomial("identity")), 4)
-model_match_evening <- getpars(model_evening_0[[1]]) # best model with states = 4
-model_match_evening <- model_match_evening[1:1164]  #Match the new_model_morning size
-# SetPars 
-test_evening_setpars <- setpars(test_model_evening[[1]], model_match_evening)
-normalize_test_morning_loglike <- logLik(test_evening_setpars) / nrow(test_evening)
-BIC(test_evening_setpars)
 
 
 # ========================================================= HMM models for 5 Data Sets  ========================================================= #
@@ -266,14 +254,30 @@ test5_model_evening <- Hmm_model(test5_evening, list(Global_active_power ~ 1, Gl
 
 # Model Comparison 
 # Morning
+test_morning_result <- Model_comparison(model_morning_0[[1]], test_model_morning[[1]], nrow(test_morning))
 test1_morning_result <- Model_comparison(model_morning_0[[1]], test1_model_morning[[1]], nrow(test1_morning))
 test2_morning_result <- Model_comparison(model_morning_0[[1]], test2_model_morning[[1]], nrow(test2_morning))
 test3_morning_result <- Model_comparison(model_morning_0[[1]], test3_model_morning[[1]], nrow(test3_morning))
 test4_morning_result <- Model_comparison(model_morning_0[[1]], test4_model_morning[[1]], nrow(test4_morning))
 test5_morning_result <- Model_comparison(model_morning_0[[1]], test5_model_morning[[1]], nrow(test5_morning))
 # Evening
+test_evening_result <- Model_comparison(model_morning_0[[1]], test_model_evening[[1]], nrow(test_evening))
 test1_evening_result <- Model_comparison(model_evening_0[[1]], test1_model_evening[[1]], nrow(test1_evening))
 test2_evening_result <- Model_comparison(model_evening_0[[1]], test2_model_evening[[1]], nrow(test2_evening))
 test3_evening_result <- Model_comparison(model_evening_0[[1]], test3_model_evening[[1]], nrow(test3_evening))
 test4_evening_result <- Model_comparison(model_evening_0[[1]], test4_model_evening[[1]], nrow(test4_evening))
 test5_evening_result <- Model_comparison(model_evening_0[[1]], test5_model_evening[[1]], nrow(test5_evening))
+
+plot( factor(c(1,2,3,4,5,6)), xaxt = "n",
+      c(test1_morning_result[[1]], test2_morning_result[[1]], test3_morning_result[[1]], test4_morning_result[[1]], test5_morning_result[[1]], test_morning_result[[1]]),
+      main="HMM LogLikehood for each Test data set (Morning)",xlab="Test cases Model", ylab="Normalized LogLikehood")
+axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Split Test"))
+
+
+# Evening
+plot( factor(c(1,2,3,4,5,6)), xaxt = "n",
+      c(test1_evening_result[[1]], test2_evening_result[[1]], test3_evening_result[[1]], test4_evening_result[[1]], test5_evening_result[[1]], test_evening_result[[1]]),
+      main="HMM LogLikehood for each Test data set (Evening)", xlab="Test cases Model", ylab="Normalized LogLikehood")
+axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Split Test"))
+
+
