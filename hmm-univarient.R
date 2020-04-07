@@ -18,11 +18,6 @@ Hmm_model <- function(data, parm_variable, number_of_states) {
   normalize_loglikehood <- logLik(fm) / nrow(data)
   result <- list(model, fm, normalize_loglikehood  )
   return(result)
-  
-  # Multivarient
-  #model <- depmix(parm_variable, data = data,
-   #               nstates = number_of_states, family=param_family, ntimes = nrow(data))
-  #fm <- fit(model)
 }
 
 Add_date <- function(data){
@@ -92,16 +87,20 @@ test5 <- Add_date(test5)
 # Filter timeframe 1 and shrink data further (i.e. choose specific day, can also aggregate data)
 # only want the odd rows 
 # Two filters for Morning => 5:30 to 9:30 && 17:30 to 21:30
-filter_morning <- subset(data, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
-filter_evening <- subset(data, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+filter_morning <- subset(data, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & 
+                           (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+filter_evening <- subset(data, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & 
+                           (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
 
 # ========================================================= Created TRAINING Data set ========================================================= #
 # Filtering data by Morning and Evening
 training_morning <- subset(filter_morning, filter_morning$Year != 2009)
 training_evening <- subset(filter_evening, filter_evening$Year != 2009)
 # Aggregate the data for Morning and Evening
-training_morning <- aggregate(list(Global_active_power = training_morning$Global_active_power), by=list(Week = training_morning$Week, Day = training_morning$Day), mean)
-training_evening <- aggregate(list(Global_active_power = training_evening$Global_active_power), by=list(Week = training_evening$Week, Day = training_evening$Day), mean)
+training_morning <- aggregate(list(Global_active_power = training_morning$Global_active_power), 
+                              by=list(Week = training_morning$Week, Day = training_morning$Day), mean)
+training_evening <- aggregate(list(Global_active_power = training_evening$Global_active_power), 
+                              by=list(Week = training_evening$Week, Day = training_evening$Day), mean)
 
 
 # ========================================================= Created TEST Data set ========================================================= #
@@ -109,27 +108,39 @@ training_evening <- aggregate(list(Global_active_power = training_evening$Global
 test_morning <- subset(filter_morning, filter_morning$Year == 2009)
 test_evening <- subset(filter_evening, filter_evening$Year == 2009)
 # Aggregate the data
-test_morning <- aggregate(list(Global_active_power = test_morning$Global_active_power), by=list(Week = test_morning$Week, Day = test_morning$Day), mean)
-test_evening <- aggregate(list(Global_active_power = test_evening$Global_active_power), by=list(Week = test_evening$Week, Day = test_evening$Day), mean)
+test_morning <- aggregate(list(Global_active_power = test_morning$Global_active_power), 
+                          by=list(Week = test_morning$Week, Day = test_morning$Day), mean)
+test_evening <- aggregate(list(Global_active_power = test_evening$Global_active_power), 
+                          by=list(Week = test_evening$Week, Day = test_evening$Day), mean)
 
 # ========================================================= Five TEST Sets ========================================================= #
 # Filter the five given test data sets
 # Filtering by morning and evening
 # TEST SET #1
-test1_morning <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
-test1_evening <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+test1_morning <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test1_evening <- subset(test1, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
 # TEST SET #2
-test2_morning <- subset(test2, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
-test2_evening <- subset(test2, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+test2_morning <- subset(test2, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test2_evening <- subset(test2, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
 # TEST SET #1
-test3_morning <- subset(test3, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
-test3_evening <- subset(test3, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+test3_morning <- subset(test3, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test3_evening <- subset(test3, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
 # TEST SET #2
-test4_morning <- subset(test4, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
-test4_evening <- subset(test4, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+test4_morning <- subset(test4, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test4_evening <- subset(test4, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
 # TEST SET #2
-test5_morning <- subset(test5, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
-test5_evening <- subset(test5, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
+test5_morning <- subset(test5, (strptime(Time, format = "%H:%M:%S") >= strptime("05:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("09:30:00", format = "%H:%M:%S")))
+test5_evening <- subset(test5, (strptime(Time, format = "%H:%M:%S") >= strptime("17:30:00", format = "%H:%M:%S")) & 
+                          (strptime(Time, format = "%H:%M:%S") <= strptime("21:30:00", format = "%H:%M:%S")))
 
 # Aggregate the data
 # TEST SET #1
@@ -255,16 +266,14 @@ test5_evening_result <- Model_comparison(model_evening_0[[1]], test5_model_eveni
 
 plot( factor(c(1,2,3,4,5,6)), xaxt = "n",
       c(test1_morning_result[[1]], test2_morning_result[[1]], test3_morning_result[[1]], test4_morning_result[[1]], test5_morning_result[[1]], test_morning_result[[1]]),
-      main="LogLikehood of Test v/s Train (Morning)", sub="Comparing Normalized Loglikehood values of Five Test datasets, vs Training Model",
-      xlab="Test cases Model", ylab="Normalized LogLikehood")
-axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Training"))
+      main="HMM LogLikehood of Test v/s Train (Morning)", xlab="Dataset", ylab="Normalized LogLikehood")
+axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Original"))
 
 
 # Evening
 plot( factor(c(1,2,3,4,5,6)), xaxt = "n",
       c(test1_evening_result[[1]], test2_evening_result[[1]], test3_evening_result[[1]], test4_evening_result[[1]], test5_evening_result[[1]], test_evening_result[[1]]),
-      main="LogLikehood of Test v/s Train (Evening)", sub="Comparing Normalized Loglikehood values of Five Test datasets, vs Training Model",
-      xlab="Test cases Model", ylab="Normalized LogLikehood")
-axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Training"))
+      main="HMM LogLikehood of Test v/s Train (Evening)", xlab="Dataset", ylab="Normalized LogLikehood")
+axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Original"))
 
 

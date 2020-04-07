@@ -270,14 +270,14 @@ test5_evening_result <- Model_comparison(model_evening_0[[1]], test5_model_eveni
 
 plot( factor(c(1,2,3,4,5,6)), xaxt = "n",
       c(test1_morning_result[[1]], test2_morning_result[[1]], test3_morning_result[[1]], test4_morning_result[[1]], test5_morning_result[[1]], test_morning_result[[1]]),
-      main="HMM LogLikehood for each Test data set (Morning)",xlab="Test cases Model", ylab="Normalized LogLikehood")
-axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Split Test"))
+      main="HMM LogLikehood for each Test data set (Morning)",xlab="Dataset", ylab="Normalized LogLikehood")
+axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Original"))
 
 
 # Evening
 plot( factor(c(1,2,3,4,5,6)), xaxt = "n",
       c(test1_evening_result[[1]], test2_evening_result[[1]], test3_evening_result[[1]], test4_evening_result[[1]], test5_evening_result[[1]], test_evening_result[[1]]),
-      main="HMM LogLikehood for each Test data set (Evening)", xlab="Test cases Model", ylab="Normalized LogLikehood")
-axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Split Test"))
+      main="HMM LogLikehood for each Test data set (Evening)", xlab="Dataset", ylab="Normalized LogLikehood")
+axis(1, at=1:6, labels=c("Test-1", "Test-2", "Test-3", "Test-4", "Test-5", "Original"))
 
 
